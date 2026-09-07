@@ -1,0 +1,125 @@
+# Estas Bel Sizing Guide - Shopify App
+
+A private Shopify app that provides interactive product sizing recommendations for Estas Bel customers.
+
+## Features
+
+- ✅ Measurement input (cm/in toggle)
+- ✅ Smart product matching (shows best size per product)
+- ✅ Product images from Shopify
+- ✅ Compression level & product type display
+- ✅ Direct product links
+- ✅ Mobile responsive
+
+## Setup
+
+### 1. Copy the files
+
+Copy these files to your `sizing-guide-app` folder:
+
+- `server.js` → root folder
+- `package.json` → root folder  
+- `.env.example` → root folder (rename to `.env`)
+- `index.html` → `web/frontend/index.html`
+
+### 2. Install dependencies
+
+```bash
+cd sizing-guide-app
+npm install
+```
+
+### 3. Configure environment
+
+Create a `.env` file in the root:
+
+```
+SHOPIFY_STORE=estasbel.com.au
+PORT=3000
+```
+
+### 4. Run locally
+
+```bash
+npm run dev
+```
+
+Visit: `http://localhost:3000`
+
+## Deployment to Railway
+
+### 1. Create Railway Account
+
+Go to [railway.app](https://railway.app) and sign up with GitHub.
+
+### 2. Deploy
+
+```bash
+npm install -g @railway/cli
+railway login
+railway init
+railway up
+```
+
+Railway will:
+- Build your app
+- Deploy it
+- Give you a live URL
+
+### 3. Update Shopify
+
+Once deployed, go to:
+- Shopify Admin → Apps → App settings
+- Update app URL to your Railway domain
+
+## Folder Structure
+
+```
+sizing-guide-app/
+├── server.js           # Express backend
+├── package.json        # Dependencies
+├── .env               # Environment variables
+├── web/
+│   └── frontend/
+│       └── index.html # Frontend UI
+└── node_modules/
+```
+
+## How It Works
+
+1. **Frontend** (`index.html`) sends measurements to `/api/products`
+2. **Backend** (`server.js`) fetches product data from Shopify
+3. **Matching algorithm** finds best-fitting products
+4. **Results displayed** with images, compression level, and links
+
+## Product Data
+
+All product sizing data is stored in `server.js` in the `productsData` object.
+
+To add/edit products:
+1. Open `server.js`
+2. Find `const productsData = {`
+3. Add/edit product sizing ranges
+4. Restart server
+
+## Troubleshooting
+
+**Images not loading?**
+- Check product handles match Shopify exactly
+- Ensure products are published
+- Try clearing browser cache
+
+**App won't start?**
+- Check `npm install` completed
+- Verify Node.js version: `node --version`
+- Check `.env` file exists
+
+**CORS errors?**
+- These are normal for local development
+- They won't appear on Railway
+
+## Support
+
+Questions? Check:
+- Railway docs: railway.app/docs
+- Shopify CLI: shopify.dev/docs/apps/tools/cli

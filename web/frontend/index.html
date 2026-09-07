@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estas Bel - Size Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif; background: #fff; }
+    .sizing-container { width: 100%; max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+    .sizing-header { margin-bottom: 2rem; }
+    .sizing-header h1 { font-size: 28px; font-weight: 600; color: #222; margin-bottom: 0.5rem; }
+    .sizing-header p { font-size: 16px; color: #666; line-height: 1.6; }
+    .sizing-input-section { margin-bottom: 2rem; background: #f9f9f9; padding: 2rem; border-radius: 8px; }
+    .unit-toggle { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+    .unit-toggle button { padding: 0.5rem 1.25rem; border: 1px solid #ddd; background: white; cursor: pointer; border-radius: 4px; font-size: 14px; font-weight: 600; color: #666; transition: all 0.2s; }
+    .unit-toggle button.active { background: #222; color: white; border-color: #222; }
+    .sizing-input-group { margin-bottom: 1.5rem; }
+    .sizing-label { display: block; font-size: 14px; font-weight: 600; color: #222; margin-bottom: 0.5rem; }
+    .sizing-helper { font-size: 13px; color: #888; margin-bottom: 0.75rem; }
+    .sizing-input-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 15px; }
+    .sizing-input-group input:focus { outline: none; border-color: #222; box-shadow: 0 0 0 2px rgba(0,0,0,0.1); }
+    .sizing-button { width: 100%; padding: 1rem; background: #222; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background 0.2s; }
+    .sizing-button:hover { background: #000; }
+    .sizing-button:active { transform: scale(0.98); }
+    .sizing-button.loading { opacity: 0.7; cursor: not-allowed; }
+    .sizing-results { margin-top: 2rem; }
+    .sizing-error { background: #fee; color: #c33; padding: 1rem; border-radius: 4px; border-left: 4px solid #c33; margin-bottom: 1.5rem; }
+    .sizing-no-match { background: #f5f5f5; color: #666; padding: 1rem 1.5rem; border-radius: 4px; text-align: center; margin-bottom: 1.5rem; }
+    .sizing-result-count { font-size: 14px; color: #888; margin-bottom: 1.5rem; font-weight: 500; }
+    .product-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 1.5rem; margin-bottom: 12px; transition: all 0.2s; display: flex; gap: 1.5rem; }
+    .product-card:hover { border-color: #222; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .product-card.perfect-match { border-left: 4px solid #4caf50; }
+    .product-card.close-match { border-left: 4px solid #ff9800; }
+    .product-image { width: 120px; height: 120px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: #f5f5f5; }
+    .product-info { flex: 1; display: flex; flex-direction: column; }
+    .product-name { font-size: 18px; font-weight: 600; color: #222; margin-bottom: 0.5rem; }
+    .product-meta { font-size: 13px; color: #888; margin-bottom: 0.75rem; }
+    .product-size-badge { display: inline-block; background: #f0f0f0; color: #222; padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: 600; font-size: 13px; margin-bottom: 1rem; width: fit-content; }
+    .product-specs { display: flex; gap: 1rem; margin-bottom: 1rem; font-size: 13px; }
+    .product-ranges { margin-bottom: 1rem; }
+    .product-range { font-size: 14px; color: #666; margin-bottom: 0.5rem; }
+    .product-range strong { color: #222; }
+    .sizing-match-badge { font-size: 12px; font-weight: 600; margin-bottom: 1rem; }
+    .sizing-match-badge.perfect { color: #4caf50; }
+    .sizing-match-badge.close { color: #ff9800; }
+    .product-link { display: inline-block; margin-top: auto; padding: 0.75rem 1.5rem; background: #222; color: white; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px; transition: background 0.2s; width: fit-content; }
+    .product-link:hover { background: #000; }
+    .sizing-tip { background: #f9f9f9; border-left: 4px solid #222; padding: 1.25rem; border-radius: 4px; margin-top: 2rem; font-size: 14px; line-height: 1.6; color: #333; }
+    .sizing-tip strong { display: block; margin-bottom: 0.5rem; color: #222; }
+    .image-placeholder { width: 120px; height: 120px; background: #e0e0e0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px; text-align: center; padding: 0.5rem; }
+    @media (max-width: 600px) {
+      .product-card { flex-direction: column; }
+      .product-image { width: 100%; height: auto; min-height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sizing-container">
+    <div class="sizing-header">
+      <h1>Find your perfect fit</h1>
+      <p>Enter your measurements and we'll recommend the best Estas Bel products for your size.</p>
+    </div>
+
+    <div class="sizing-input-section">
+      <div class="unit-toggle">
+        <button class="active" data-unit="cm">Centimeters</button>
+        <button data-unit="in">Inches</button>
+      </div>
+
+      <div class="sizing-input-group">
+        <label class="sizing-label">Waist measurement</label>
+        <div class="sizing-helper">Measure at your narrowest point, keep the tape snug but not tight</div>
+        <input type="number" id="waist" placeholder="e.g. 75" step="0.5">
+      </div>
+
+      <div class="sizing-input-group">
+        <label class="sizing-label">Hip measurement</label>
+        <div class="sizing-helper">Measure at your widest point</div>
+        <input type="number" id="hips" placeholder="e.g. 105" step="0.5">
+      </div>
+
+      <button class="sizing-button" onclick="findProducts()">Find my products</button>
+    </div>
+
+    <div class="sizing-results" id="results"></div>
+  </div>
+
+  <script>
+    let currentUnit = 'cm';
+    let productsData = [];
+
+    // Fetch products on page load
+    async function loadProducts() {
+      try {
+        const response = await fetch('/api/products');
+        productsData = await response.json();
+      } catch (error) {
+        console.error('Error loading products:', error);
+      }
+    }
+
+    document.querySelectorAll('.unit-toggle button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.unit-toggle button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        currentUnit = e.target.dataset.unit;
+      });
+    });
+
+    function cmToInches(cm) {
+      return cm / 2.54;
+    }
+
+    function inchesToCm(inches) {
+      return inches * 2.54;
+    }
+
+    function findProducts() {
+      const resultsDiv = document.getElementById('results');
+      const button = document.querySelector('.sizing-button');
+      
+      let waist = parseFloat(document.getElementById('waist').value);
+      let hips = parseFloat(document.getElementById('hips').value);
+
+      if (!waist || !hips) {
+        resultsDiv.innerHTML = '<div class="sizing-error">Please enter both waist and hips measurements</div>';
+        return;
+      }
+
+      if (currentUnit === 'in') {
+        waist = inchesToCm(waist);
+        hips = inchesToCm(hips);
+      }
+
+      const matches = [];
+
+      for (const product of productsData) {
+        let bestMatch = null;
+
+        for (const [size, range] of Object.entries(product.sizes)) {
+          const waistMatch = waist >= range.waist[0] && waist <= range.waist[1];
+          const hipsMatch = hips >= range.hips[0] && hips <= range.hips[1];
+
+          if (waistMatch && hipsMatch) {
+            if (!bestMatch || bestMatch.matchType !== 'perfect') {
+              bestMatch = {
+                product: product,
+                size: size,
+                matchType: 'perfect',
+                range: range,
+                totalDiff: 0
+              };
+            }
+          } else if ((waistMatch || hipsMatch) && (!bestMatch || bestMatch.matchType !== 'perfect')) {
+            const waistDiff = waistMatch ? 0 : Math.min(
+              Math.abs(waist - range.waist[0]),
+              Math.abs(waist - range.waist[1])
+            );
+            const hipsDiff = hipsMatch ? 0 : Math.min(
+              Math.abs(hips - range.hips[0]),
+              Math.abs(hips - range.hips[1])
+            );
+            const totalDiff = waistDiff + hipsDiff;
+
+            if (!bestMatch || totalDiff < bestMatch.totalDiff) {
+              bestMatch = {
+                product: product,
+                size: size,
+                matchType: 'close',
+                range: range,
+                totalDiff: totalDiff
+              };
+            }
+          }
+        }
+
+        if (bestMatch) {
+          matches.push(bestMatch);
+        }
+      }
+
+      if (matches.length === 0) {
+        resultsDiv.innerHTML = '<div class="sizing-no-match">No exact matches found for your measurements. Try adjusting slightly or browse our <a href="/collections/all" style="color: #222; text-decoration: underline; font-weight: 600;">full collection</a>.</div>';
+        return;
+      }
+
+      matches.sort((a, b) => {
+        if (a.matchType !== b.matchType) {
+          return a.matchType === 'perfect' ? -1 : 1;
+        }
+        return a.totalDiff - b.totalDiff;
+      });
+
+      const topMatches = matches.slice(0, 8);
+      let html = `<div class="sizing-result-count">Found ${topMatches.length} match${topMatches.length !== 1 ? 'es' : ''} for your size</div>`;
+
+      topMatches.forEach(match => {
+        const isPerfect = match.matchType === 'perfect';
+        const cardClass = isPerfect ? 'perfect-match' : 'close-match';
+        const badgeText = isPerfect ? '✓ Perfect fit' : '≈ Close match';
+        const badgeClass = isPerfect ? 'perfect' : 'close';
+
+        const imageHtml = match.product.imageUrl 
+          ? `<img class="product-image" src="${match.product.imageUrl}" alt="${match.product.name}" onerror="this.style.display='none'">`
+          : `<div class="image-placeholder">No image</div>`;
+
+        html += `
+          <div class="product-card ${cardClass}">
+            ${imageHtml}
+            <div class="product-info">
+              <div class="product-name">${match.product.name}</div>
+              <div class="product-meta">${match.product.description}</div>
+              <div class="product-size-badge">${match.size}</div>
+              <div class="product-specs">
+                <div><strong>${match.product.compression}</strong> compression</div>
+                <div style="color: #999;">• ${match.product.type}</div>
+              </div>
+              <div class="product-ranges">
+                <div class="product-range"><strong>Waist:</strong> ${match.range.waist[0]}–${match.range.waist[1]} cm</div>
+                <div class="product-range"><strong>Hips:</strong> ${match.range.hips[0]}–${match.range.hips[1]} cm</div>
+              </div>
+              <div class="sizing-match-badge ${badgeClass}">${badgeText}</div>
+              <a href="${match.product.productUrl}" class="product-link">View product</a>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+        <div class="sizing-tip">
+          <strong>Sizing tip:</strong> If you're between sizes, we recommend the larger size for comfort. All products have a 30-day return window.
+        </div>
+      `;
+
+      resultsDiv.innerHTML = html;
+    }
+
+    // Load products on page load
+    loadProducts();
+  </script>
+</body>
+</html>
