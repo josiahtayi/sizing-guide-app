@@ -205,31 +205,52 @@ setInterval(() => {
 async function getProductImage(handle) {
   // Check cache first
   if (imageCache[handle]) {
+    console.log(`[CACHE HIT] ${handle}`);
     return imageCache[handle];
   }
 
   try {
-    const response = await axios.get(`https://${SHOPIFY_STORE}/products/${handle}.json`, {
-      timeout: 5000
+    const url = `https://${SHOPIFY_STORE}/products/${handle}.json`;
+    console.log(`[FETCH] Fetching ${url}`);
+    
+    const response = await axios.get(url, {
+      timeout: 5000,
+      headers: {
+        'User-Agent': 'Shopify-Sizing-Guide-App/1.0'
+      }
     });
     
-    if (response.data && response.data.product && response.data.product.images && response.data.product.images.length > 0) {
-      let imageUrl = response.data.product.images[0].src;
+    console.log(`[SUCCESS] Got response for ${handle}`);
+    
+    if (response.data && response.data.product) {
+      const images = response.data.product.images;
+      console.log(`[IMAGES] Found ${images.length} images for ${handle}`);
       
-      // Ensure HTTPS
-      if (!imageUrl.startsWith('http')) {
-        imageUrl = 'https:' + imageUrl;
+      if (images && images.length > 0) {
+        let imageUrl = images[0].src;
+        console.log(`[URL] Original: ${imageUrl}`);
+        
+        // Ensure HTTPS
+        if (!imageUrl.startsWith('http')) {
+          imageUrl = 'https:' + imageUrl;
+        }
+        console.log(`[URL] Final: ${imageUrl}`);
+        
+        // Cache it with timestamp
+        imageCache[handle] = imageUrl;
+        imageCacheTime[handle] = Date.now();
+        return imageUrl;
+      } else {
+        console.log(`[ERROR] No images found for ${handle}`);
       }
-      
-      // Cache it with timestamp
-      imageCache[handle] = imageUrl;
-      imageCacheTime[handle] = Date.now();
-      return imageUrl;
+    } else {
+      console.log(`[ERROR] Invalid response structure for ${handle}`);
     }
   } catch (error) {
-    console.log(`Could not fetch image for ${handle}:`, error.message);
+    console.log(`[FETCH ERROR] ${handle}: ${error.message}`);
   }
   
+  console.log(`[FALLBACK] Returning empty string for ${handle}`);
   return '';
 }
 
@@ -250,7 +271,7 @@ app.get('/api/products', async (req, res) => {
         type: data.type,
         sizes: data.sizes,
         imageUrl: imageUrl,
-        productUrl: `/products/${handle}`
+        productUrl: `https://${SHOPIFY_STORE}/products/${handle}`
       };
     });
 
@@ -272,9 +293,13 @@ app.post('/api/cache/clear', (req, res) => {
 
 // Health check
 app.get('/api/health', (req, res) => {
+  const cachedHandles = Object.keys(imageCache);
   res.json({ 
     status: 'ok',
-    cachedProducts: Object.keys(imageCache).length
+    totalProducts: Object.keys(productsData).length,
+    cachedImages: cachedHandles.length,
+    cachedProducts: cachedHandles,
+    store: SHOPIFY_STORE
   });
 });
 

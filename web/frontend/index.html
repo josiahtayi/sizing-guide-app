@@ -202,8 +202,8 @@
         const badgeClass = isPerfect ? 'perfect' : 'close';
 
         const imageHtml = match.product.imageUrl 
-          ? `<img class="product-image" src="${match.product.imageUrl}" alt="${match.product.name}" loading="lazy">`
-          : `<div class="image-placeholder">Loading...</div>`;
+          ? `<img class="product-image" src="${match.product.imageUrl}" alt="${match.product.name}" loading="lazy" crossorigin="anonymous" width="120" height="120">`
+          : `<div class="image-placeholder">No image</div>`;
 
         html += `
           <div class="product-card ${cardClass}">
@@ -221,7 +221,7 @@
                 <div class="product-range"><strong>Hips:</strong> ${match.range.hips[0]}–${match.range.hips[1]} cm</div>
               </div>
               <div class="sizing-match-badge ${badgeClass}">${badgeText}</div>
-              <a href="${match.product.productUrl}" class="product-link">View product</a>
+              <a href="${match.product.productUrl}" target="_blank" rel="noopener noreferrer" class="product-link">View product</a>
             </div>
           </div>
         `;
