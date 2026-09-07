@@ -182,28 +182,67 @@ const productsData = {
   }
 };
 
+// Cache for product images to reduce API calls
+// Images cached for 1 hour (3600000 ms)
+const imageCache = {};
+const CACHE_DURATION = 3600000; // 1 hour
+const imageCacheTime = {};
+
+// Clear old cache entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const handle in imageCacheTime) {
+    if (now - imageCacheTime[handle] > CACHE_DURATION) {
+      delete imageCache[handle];
+      delete imageCacheTime[handle];
+      console.log(`Cleared cache for ${handle}`);
+    }
+  }
+}, CACHE_DURATION);
+
+
+// Function to fetch product image from Shopify
+async function getProductImage(handle) {
+  // Check cache first
+  if (imageCache[handle]) {
+    return imageCache[handle];
+  }
+
+  try {
+    const response = await axios.get(`https://${SHOPIFY_STORE}/products/${handle}.json`, {
+      timeout: 5000
+    });
+    
+    if (response.data && response.data.product && response.data.product.images && response.data.product.images.length > 0) {
+      let imageUrl = response.data.product.images[0].src;
+      
+      // Ensure HTTPS
+      if (!imageUrl.startsWith('http')) {
+        imageUrl = 'https:' + imageUrl;
+      }
+      
+      // Cache it with timestamp
+      imageCache[handle] = imageUrl;
+      imageCacheTime[handle] = Date.now();
+      return imageUrl;
+    }
+  } catch (error) {
+    console.log(`Could not fetch image for ${handle}:`, error.message);
+  }
+  
+  return '';
+}
+
 // API endpoint to get products with images
 app.get('/api/products', async (req, res) => {
   try {
     const products = [];
 
-    for (const [handle, data] of Object.entries(productsData)) {
-      let imageUrl = '';
-
-      // Try to fetch product image from Shopify public API
-      try {
-        const response = await axios.get(`https://${SHOPIFY_STORE}/products/${handle}.json`);
-        if (response.data.product && response.data.product.images.length > 0) {
-          imageUrl = response.data.product.images[0].src;
-          if (!imageUrl.startsWith('http')) {
-            imageUrl = 'https:' + imageUrl;
-          }
-        }
-      } catch (error) {
-        console.log(`Could not fetch image for ${handle}`);
-      }
-
-      products.push({
+    // Fetch all products with their images in parallel
+    const productPromises = Object.entries(productsData).map(async ([handle, data]) => {
+      const imageUrl = await getProductImage(handle);
+      
+      return {
         handle,
         name: data.name,
         description: data.description,
@@ -212,19 +251,31 @@ app.get('/api/products', async (req, res) => {
         sizes: data.sizes,
         imageUrl: imageUrl,
         productUrl: `/products/${handle}`
-      });
-    }
+      };
+    });
 
-    res.json(products);
+    const allProducts = await Promise.all(productPromises);
+    res.json(allProducts);
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 });
 
+// Manual cache clear endpoint (for admin use)
+app.post('/api/cache/clear', (req, res) => {
+  Object.keys(imageCache).forEach(key => delete imageCache[key]);
+  Object.keys(imageCacheTime).forEach(key => delete imageCacheTime[key]);
+  console.log('Image cache cleared');
+  res.json({ status: 'Cache cleared successfully' });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ 
+    status: 'ok',
+    cachedProducts: Object.keys(imageCache).length
+  });
 });
 
 // Serve index.html for all other routes
